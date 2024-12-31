@@ -21,7 +21,7 @@ Succinct List of Steps:
 
 
 The full list of steps, in detail, is below. In parentheses, I indicate which script is used to accomplish the step, or denote that the step must be done "by hand" / manually (without code). Steps 1, 2, 3, 4, and 9 are optional and only necessary if the conjoints include images (for example, my profiles contained a blurred headshot of a babysitter). 
-    1. Obtain images (For example, I generated AI images from Canva AI image generator: https://www.canva.com/ai-image-generator/) (Do this by hand)
+    1. Obtain images (For example, I generated AI images from Canva AI image generator: https://www.canva.com/ai-image-generator/) (Do this by hand) <br/>
     2. Download the desired images to a folder on your computer (Do this by hand)
     3. Process the images (For example, I needed to remove white space, resize, and blur images) ("Image_Resize_and_Blur_Works.py")
     4. Manually upload the processed images to a folder in Google Drive (Do this by hand)
