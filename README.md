@@ -1,7 +1,7 @@
 # Visual_Conjoints
 This repository contains all of the code needed to generate all possible profiles for a visual conjoint experiment and integrate the created profiles with Qualtrics.
 
-It aims to provide all code needed for all steps of the process, from generating the images used in the conjoints to analyzing data from the Qualtrics survey. 
+It aims to provide all code needed for all steps of the process, from generating the images used in the profiles to analyzing data from the Qualtrics survey. 
 
 Please note that I am not the first social scientist to create a method for generating visual conjoint profiles. A method develped by Alessandro Vecchiato exists and is available on GitHub at the following link: https://github.com/avecchiato/Introducing_Visual_Conjoints (Citation: Alessandro Vecchiato (2021), "Replication Material of Introducing Visual Conjoint Experiments."). I developed my method independently of Vecchiato, and our methods are different. If you find my method confusing or hard to follow, I recommend checking out Vecchiato's method as an alternative. 
 
