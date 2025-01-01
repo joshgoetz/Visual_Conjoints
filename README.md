@@ -45,3 +45,4 @@ The full list of steps, in detail, is below. In parentheses, I indicate which sc
     22. Analyze data in R. (R) <br/>
 
 
+I'd like to thank the following people for their help in the process of creating this method: Salma Mousa, Graeme Blair, Chris Tausanovitch, and Jeff Lewis. My JavaScript code is based on a template written by Clayton Becker, who I would also like to thank. 
