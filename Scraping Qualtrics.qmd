@@ -1,0 +1,282 @@
+---
+title: "WS Myself"
+author: "Josh Goetz"
+format: pdf
+editor: visual
+---
+
+## Overview:
+
+This code is used to help automate the generation of JavaScript code used in Qualtrics. 
+
+To randomly show the respondent two profiles in Qualtrics, we must randomly draw two profiles
+from the Qualtrics library. 
+In order to do this, each conjoint choice question ("task") question must have JavaScript code that draws profiles from the Qualtrics library and inserts them into the survey. 
+
+Much of the JavaScript is repetitive, so it makes sense to automate the code-writing.
+
+This code does this by completing two key steps: 
+1. Scraping all of the links to the profile images from the Qualtrics Library
+2. Generating all of the repetitive code so that it can be placed in the JavaScript template. 
+
+## Part 1: Webscraping my own Qualtrics page to get the links to my babysitter profile pictures:
+
+```{r Qualtrics}
+
+# Load necessary libraries
+
+
+library(RSelenium) # For webscraping
+library(wdman)     # For determining available versions of Chrome
+library(netstat)   # For free_port function
+library(rvest)     # For parsing HTML
+library(httr)      # Necessary for reading html
+library(stringr)   # For substring functions (str_sub)
+library(dplyr)     # For everyday data manipulation
+
+
+# Figure out how many pages to scrape through in Qualtrics library
+
+
+# Assume 25 library items per page (currently the standard)
+n_item_per_page = 25
+# So we need to know how many profile images there are in total
+# Import the .csv file with the profile attributes
+# The file is called created_profiles.csv and is saved in the UCLA Quarter VII folder
+# The file was generated in the Python file called "Conjoint v3 all profiles.py"
+java_all_profiles_df = read.csv("C:/Users/OSU/UCLA/UCLA Quarter VII/created_profiles.csv")
+
+# Count number of profile images
+n_prof_images = nrow(java_all_profiles_df)
+
+# Calculate number of Qualtrics library pages by dividing by 25 and rounding up
+n_qual_lib_pages = ceiling(n_prof_images / n_item_per_page)
+
+
+# Begin Scraping
+
+
+# Base URL
+url_base <- "https://sscucla.qualtrics.com/app/library#libraryID=UR_aWw6K3gvdDKnhS6&folderID=FLDR_6ZZTg5fOzkZg83I&page="
+
+# Initialize the remote driver for browser
+remote_driver <- rsDriver(browser = "firefox", port = free_port())
+remDr <- remote_driver$client
+
+# Open the browser and navigate to the login page
+remDr$navigate(paste0(url_base, "1"))
+
+# Wait for manual login
+cat("Please log in manually.\n")
+Sys.sleep(30)  # Adjust based on how long login takes
+
+# Initialize an empty data frame to store links
+all_links_df <- data.frame()
+
+# Loop through all pages of Qualtrics library
+for (i in 1:n_qual_lib_pages) {
+  # Construct the URL for the specific page
+  #url_full <- paste0(url_base, i)
+  #print(paste("Navigating to:", url_full))
+  # Navigate to the page
+  #remDr$navigate(url_full)
+  
+  # Wait for the page to load completely
+  Sys.sleep(3)  # Adjust sleep time based on your network speed
+  
+  # Get the HTML source of the page
+  html_source <- remDr$getPageSource()[[1]]
+  
+  # Parse the HTML
+  target_page <- read_html(html_source)
+  
+  # Extract the image links
+  full_links <- target_page %>% html_nodes("img") %>% html_attr("src")
+  
+  # Filter for relevant links
+  full_links <- full_links[grepl("/ControlPanel", full_links)]
+  
+  # Append the base URL to the image links
+  base_pic_url <- "https://sscucla.qualtrics.com"
+  final_links <- paste0(base_pic_url, full_links)
+  
+  # Debugging step: print links found on the current page
+  print(final_links)
+  
+  # Convert to a data frame and append to the master data frame
+  all_links_df <- rbind(all_links_df, data.frame(final_links, stringsAsFactors = FALSE))
+  
+  # Simulate clicking the "Next Page" button
+  tryCatch({
+    next_button <- remDr$findElement(using = "css selector", "button[aria-label='Next Page']")
+    next_button$clickElement()
+  }, error = function(e) {
+    print("Next button not found or cannot be clicked. Ending loop.")
+    break
+  })
+}
+
+# Shorten the links by removing everything after "&last"
+# Creates separate data frame "short_links_df"
+short_links_df <- data.frame(
+  short_links = gsub("&last.*", "", all_links_df$final_links),
+  stringsAsFactors = FALSE
+)
+
+
+# Verify that the resulting data frame contains all of the relevant links and only the relevant links
+
+
+#Count unique rows
+num_unique_rows_short <- nrow(unique(short_links_df))
+print(num_unique_rows_short)
+
+# Save the links to CSV files
+# Manually check these to verify that the code worked properly to obtain all relevant links
+write.csv(short_links_df, "C:/Users/OSU/UCLA/UCLA Quarter VII/ipc_all_image_links.csv", row.names = FALSE)
+
+# Common error: 
+# An error may arise if you have other items in the same folder of your Qualtrics library beside profile images
+# To ensure this isn't an issue, make all of the profile images appear first in the library
+# For example, you can rename all non-profile items with "Z_" at the beginning to make them last alphabetically
+# You then may need to modify the "baby_links_df" line below to filter out these items.
+# Then, make sure that the number of relevant + irrelevant links = total number of images in your library
+# Note that some items in your library might not be images, and so they won't be scraped by this code. 
+
+
+# Check to see if the number of links equals the number of profile images
+# If not, filter out irrelevant links
+if (num_unique_rows_short == n_prof_images){
+  print("Number of links and number of profile images are the same")
+} else {
+  print("Number of links DOES NOT EQUAL number of profile images")
+  # Filter out irrelevant links
+  # This can be an issue if you have other things besides the conjoint profiles in your library
+  # Select only the first n_prof_images links (e.g. the first 225 links) and manually check these
+  baby_links_df <- short_links_df[1:n_prof_images, ] %>% as.data.frame() 
+  
+  # Also manually check the irrelevant links
+  irr_links_df <- short_links_df[(n_prof_images + 1):nrow(short_links_df), ] %>% as.data.frame()
+  
+  #Fix column names
+  colnames(baby_links_df) <- c("final_links")
+  colnames(irr_links_df) <- c("final_links")
+  
+  # Save these lists of relevant and irrelevant links as CSV files as well. 
+  write.csv(baby_links_df, "C:/Users/OSU/UCLA/UCLA Quarter VII/ipc_babysitter_image_links.csv", row.names = FALSE)
+  write.csv(irr_links_df, "C:/Users/OSU/UCLA/UCLA Quarter VII/ipc_not_image_links.csv", row.names = FALSE)
+  
+  # Redefine short_links_df to only contain the links in baby_links_df
+  short_links_df = baby_links_df
+}
+
+
+# Check and stop existing Selenium sessions
+if (exists("remDr") && !is.null(remDr)) {
+  tryCatch({
+    remDr$close()
+  }, error = function(e) {
+    message("No active session to close.")
+  })
+}
+
+if (exists("remote_driver") && !is.null(remote_driver$server)) {
+  tryCatch({
+    remote_driver$server$stop()
+  }, error = function(e) {
+    message("No server to stop.")
+  })
+}
+  
+```
+
+
+## Part 2: Writing all of the repetitive JavaScript code
+
+```{r JavaScript data frame}
+
+# Because writing the JavaScript code is tedious, I try to automate the process here
+# There are a bunch of lines of code that have the same structure for each profile
+# So I create a data frame at the profile level to automatically generate the repetitive line for each profile
+# I then embed the repetitive lines within the shell of JavaScript code manually. 
+
+
+# Recall that in the code chunk above, we read in the .csv file with the profile attributes
+# This data frame is called "java_all_profiles_df"
+
+# Add id numbers to images
+unique_pics = java_all_profiles_df %>% select("Image_Link") %>% unique()
+unique_pics = unique_pics %>% mutate(Image_ID = row_number(unique_pics))
+#Note: Because of the way unique() works, Image_ID #1 isn't assigned to the first image used in the df
+#The naming convention is arbitrary, but it is important to keep in mind which is defined as #1, #2, etc. 
+java_apdf = left_join(java_all_profiles_df, unique_pics, by = "Image_Link")
+
+# Add column for Qualtrics library image links
+# We need to append short_links_df (from above) to the data frame. 
+# Ojo! short_links_df is likely in reverse order, because of the way the Python code generates new profiles. 
+# Manually check to see if this is the case.
+# If it is, run the code below to reverse the order of rows in the data frame.
+# If it is not, comment out the two lines below. 
+short_links_inverted <- short_links_df[nrow(short_links_df):1, , drop = FALSE]
+row.names(short_links_inverted) <- NULL # Reset the row names for a clean sequence
+# Before combining, verify that they are the same size
+if (nrow(short_links_inverted) == nrow(java_apdf)){
+  print("Number of links and number of rows of generated profile data frame are the same")
+} else{
+  print("Error: Number of links DOES NOT EQUAL number of rows in generated profiles data frame.")
+}
+print(nrow(short_links_inverted))
+print(nrow(java_apdf))
+
+# Once again, manually verify that the links are in the correct order. Flip if not.
+
+# Add links to the data frame:
+java_apdf = cbind(java_apdf, short_links_inverted)
+# Rename the short_links column to qual_lib_links
+# Also rename the column called "Image Link" (this is the link to the image used in the profile, not a link to the profile image)
+java_apdf = java_apdf %>% rename(qual_lib_links = `short_links`,
+                                 Google_Image_Link = `Image_Link`)
+
+# Add repetitive lines in JavaScript
+# There are three repetitive sections of code. 
+# Add column of identifiers for each profile (with and without comma)
+
+# Repetitive Section #3
+# Add mapping of identifiers to attributes (with and without comma)
+java_apdf = java_apdf %>% mutate(prof_identifier = paste0("'", Religion, "_", Cost, "_", Years_Experience, "_", "pic", Image_ID, "'"),
+                                 prof_identifier_comma = paste0(prof_identifier, ","), 
+                                 map_i_a = paste0(prof_identifier, ": ['", Religion, "', '", Cost, "', '", Years_Experience, "', 'pic", Image_ID, "']"),
+                                 map_i_a_comma = paste0(map_i_a, ","))
+
+# Repetitive Section #2
+# Add mapping of Qualtrics library links to profile identifiers (with and without comma)
+java_apdf = java_apdf %>% mutate(map_links_i = paste0("'", qual_lib_links, "': ", prof_identifier), 
+                                 map_links_i_comma = paste0(map_links_i, ","))
+
+# Repetitive Section #1: 
+# Add single quotes and commas to Qualtrics library links
+java_apdf = java_apdf %>% mutate(qual_link_quote_comma = paste0("'", qual_lib_links, "',"))
+
+# Save java_apdf as a CSV
+write.csv(java_apdf, "C:/Users/OSU/UCLA/UCLA Quarter VII/for_javascript_repetitive_code_qualtrics.csv", row.names = FALSE)
+
+```
+
+From here, the final steps are done by hand. 
+
+First, open the CSV file and verify that the code worked properly (i.e. ensure that image links properly correspond to profiles with the specified attributes). 
+
+Then, you can manually copy the following three columns and paste them into the provided JavaScript code:
+- qual_link_quote_comma (repetitive section #1)
+- map_links_i_comma (repetitive section #2)
+- map_i_a_comma (repetitive section #3)
+
+Copy and paste these into the appropriate sections of the file called "JavaScript Qualtrics".
+Then copy this into the JavaScript editor of the conjoint choice question (task) in Qualtrics.
+
+Remember to remove the comma from the last item in each list.
+
+Also remember to follow any instructions listed in the description of the "JavaScript Qualtrics" file. 
+
+
+
