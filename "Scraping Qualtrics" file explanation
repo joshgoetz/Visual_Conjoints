@@ -1,0 +1,16 @@
+This code is used to help automate the generation of JavaScript code used in Qualtrics.
+
+To randomly show the respondent two profiles in Qualtrics, we must randomly draw two profiles from the Qualtrics library. 
+In order to do this, each conjoint choice question ("task") must have JavaScript code that draws profiles from the Qualtrics library and inserts them into the survey.
+
+Much of the JavaScript is repetitive, so it makes sense to automate the code-writing.
+
+This code does this by completing two key steps: 
+1. Scraping all of the links to the profile images from the Qualtrics Library 
+2. Generating all of the repetitive code so that it can be placed in the JavaScript template
+
+This code should be run after you generate all of the conjoint profiles automatically (using the "Conjoint v3 all profiles.py" file) and then manually upload the images of these profiles to your Qualtrics library. 
+After running this code, the penultimate step is to copy the repetitive sections of the code into the "JavaScript Qualtrics" file provided.
+From here, make any changes deemed necessary at the end of the "Scraping Qualtrics.qmd" file, in the description of the "JavaScript Qualtrics" file, or by you. 
+The last step is to copy the completed JavaScript code into the JavaScript editor of the relevant question(s) in your Qualtrics survey.
+(Note that if you have multiple conjoint choice questions / tasks, you will have to slightly modify the code for each question so that you do not accidentally overwrite embedded data).
