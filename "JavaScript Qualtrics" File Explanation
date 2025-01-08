@@ -1,0 +1,42 @@
+Overview: This JavaScript code is used to randomly sample profiles from the Qualtrics library and display two of them at a time to the respondent. 
+It also makes note of the attributes of the profiles that are shown and saves these attributes as embedded data. 
+The embedded data appears in the resulting data frame of responses, providing all data necessary for the researcher to analyze the data as a conjoint. 
+
+How to modify this code for your purposes: There are three "repetitive sections" of the code. 
+The first is the list of links to the profile images in the Qualtrics library. 
+The second creates an identifier for each image. 
+The third specifies the attributes that are included in each profile image. 
+
+Modifying all of these sections by hand would be incredibly tedious and it would be very easy to make mistakes. 
+To automate the process, I have written code that automatically generates these lists. 
+When you run the "Conjoint v3 all profiles.py" file, a data frame is created which contains a row for each profile, and columns for profile identifiers and profile attributes. 
+Once you upload the profile images created by the Python code to Qualtrics, you should then run the "Scraping Qualtrics.qmd" file. 
+This file scrapes your Qualtrics library to obtain the links to the profile images. 
+It then reads in the data frame that was created by the Python code and adds the links as a new column to the data frame. 
+It then modifies the data frame to create new columns containing strings that are formatted for JavaScript - i.e. they are formatted exactly as the "repetitive sections" are. 
+Once this is done, you can just copy the resulting columns and paste them directly into this JavaScript code by hand. 
+
+If your survey contains more than one conjoint choice question (task), you will need to modify the counter ("_1") for each question. 
+For example, if you have the following line in your code for choice question #1 (var profileIdentifier1_1 = imageIdentifiers_1[selectedImage1_1];), you should change it to (var profileIdentifier1_2 = imageIdentifiers_2[selectedImage1_2];) for choice question #2. 
+
+Other things you have to do by hand:
+1. Setting embedded data - you must go to the "Survey Flow" tab in Qualtrics and set embedded data fields for each attribute of each profile of each choice. 
+  For example, if you have 4 attributes per profile, 2 profiles per choice question, and 5 choice questions in your survey, then you need to set 4x2x5 = 40 embedded data fields 
+  (e.g. if one attribute is "cost", set Cost_1_A and Cost_1_B for the cost attribute fields for the two profiles in the first choice question). 
+2. Writing HTML code for each choice question - The code in the "JavaScript Qualtrics file" goes in the JavaScript editor of the survey question in Qualtrics. 
+  It must be accompanied by the following code which goes in the HTML editor of the same question. 
+  Once again, if you have multiple choice questions, you should update the counter ("_1") for each. 
+
+
+HTML Code (between the dashed lines below)
+--------------------------------------------------
+(Pair 1) Of the two babysitters below, which would you prefer to hire?<br>
+<br>
+
+<table>
+    <tbody><tr>
+        <td id="imageContainer1_1"></td>
+        <td id="imageContainer2_1"></td>
+    </tr>
+</tbody></table>
+---------------------------------------------------
