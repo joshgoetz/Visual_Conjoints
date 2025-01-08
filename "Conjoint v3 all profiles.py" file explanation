@@ -1,0 +1,66 @@
+
+'''
+This is the main script for this method. '
+
+Before running this code, you should do the following: 
+1. Create a Google Slides presentation with a template slide containing placeholder text/images for the profile attributes
+2. If your profile contains any images as attributes (e.g. mine contained headshots of babysitters), upload the images to a Google Drive folder
+3. Create a service account through the Google Cloud API and share the Google Slides presentation (and the Google Drive folder, if applicable) with the account
+
+After running the code, the next step is to manually upload all of the profile pngs (the output of this code) into your Qualtrics library.
+Then you should run the "Scraping Qualtrics.qmd" code to generate JavaScript code that can be inserted into the "JavaScript Qualtrics" code template and ultimately integrated into your survey. 
+
+
+
+
+High-level overview of this script: 
+
+This code is used to generate all possible profiles for a conjiont experiment with a visual treatment
+The code interacts with Google Slides to do this, creating each possible profile on a new slide
+Unless modified, the code will generate all possible profiles - that is, all possible attribute level combinations, given a certain set of attributes and attribute levels. 
+
+What you need at the start: 
+    - A Google Slideshow with one slide that contains the profile template
+    - Note: Mine has the template on the 4th slide and intro stuff on the first three slides
+
+What this code does (overview): 
+    - Iterates through all possible combinations of attribute levels
+    - For each combination, it creates a profile by doing the following: 
+        - Duplicating template slide of the Google Slideshow add appending it to the slideshow
+        - Filling in each template attribute of the duplicated slide with the assigned attribute level
+    - Downloads the slide as a png 
+    - Also creates a data frame containing a row for each generated profile and a number of columns containing profile attributes and other information. 
+
+
+
+
+
+Cell-by-cell explanation of this script: 
+
+The first code cell imports libraries.
+
+The second code cell interacts with Google Slides using the Google Slides API. 
+It retrieves critical information about the slideshow (principally, the object IDs of various elements on the template slide)
+
+The third code cell interacts with Google Drive. Specifically, it finds all pictures in the picture folder and gets their links
+It then creates downloadable links for these images so they can be inserted into the templates on Google Slides.
+This code cell is only necessary if you are including images in your profile (i.e. if one of your attributes is an image). 
+
+The fourth cell defines attributes for the conjoint. This is the key cell that you must modify for our own purposes. 
+
+The fifth cell is where the magic happens. 
+The code iterates through all possible combinations of profile attribute levels.
+For each combination, it duplicates the template slide and adds it to the Google Slides presentation. 
+Currently, it adds the updated slide right after the template slide each time.
+So the slides end up appearing in inverse order (the slide that is added first ends up being last).
+For each slide that is added, the placeholder text and image are replaced.
+Also, a data frame is created with one row for each new profile and columns containing profile information (e.g. attributes, corresponding slide number, etc.). 
+The data frame is saved as created_profiles.csv. Further manipulation in R prepares the JavaScript code. 
+
+The sixth cell downloads the Google Slides presentation and converts each slide into a png and saves the pngs to a folder
+
+
+
+
+I think that's it! Good luck and have fun!
+    
