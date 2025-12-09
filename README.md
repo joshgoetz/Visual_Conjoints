@@ -1,7 +1,7 @@
 # Visual_Conjoints
 This repository contains the code needed to generate all possible profiles for a visual conjoint experiment and integrate the created profiles with Qualtrics.
 
-It aims to provide all code needed for all steps of the process, from generating the images used in the profiles to analyzing data from the Qualtrics survey. That said, there are still some steps that must be done manually.
+The code automates the majority of steps, though some steps must still be done manually.
 
 Please note that I am not the first social scientist to create a method for generating visual conjoint profiles. A method developed by Alessandro Vecchiato exists and is available on GitHub at the following link: https://github.com/avecchiato/Introducing_Visual_Conjoints (Citation: Alessandro Vecchiato (2021), "Replication Material of Introducing Visual Conjoint Experiments."). I developed my method independently of Vecchiato, and our methods are different. If you find my method confusing or hard to follow, I recommend checking out Vecchiato's method as an alternative. 
 
@@ -9,7 +9,7 @@ My method is built for survey experiments in social science but could be used fo
 The code provided was originally used to generate all possible profiles for a project that seeks to measure religious discrimination against babysitters and uses a forced-choice conjoint, but it could be adapted for any visual conjoint. In my case, the profiles are made to look like babysitter profiles on a fictitious app where parents choose babysitters to hire. The profiles contain a blurred picture of a babysitter, as well as information about the babysitter such as cost to hire, years of experience, religion, etc. 
 
 Summary of my method:  <br/>
-The goal of this method is to randomly show two profiles in Qualtrics to a respondent and be able to know which profile the respondent picked as well as the attributes that were included in each profile shown to each respondent. With this information, one can find the AMCEs of different attributes and do all sorts of analyses. The goal can be accomplished in Qualtrics if images of all possible profiles (all possible attribute level combinations) are included in the Qualtrics library, and JavaScript code is written in the Qualtrics survey to randomly sample from the library and set the chosen profile's attributes as embedded data. To do this, one must first create all possible profiles for the conjoint. To do this, a profile template must first be created, and then the template can be filled in with all possible attribute level combintations. This can be done by creating the template in a Google Slides presentation and then using the Google Slides API to repeatedly duplicate and edit the template slide to create all possible profiles. The provided Python script "Conjoint v3 public version.py" does the duplicating and editing, while another script in this repository (e.g. "Image_Resize_and_Blur_Works.py") automates other small (optional) tasks. 
+The goal of this method is to randomly show two profiles in Qualtrics to a respondent and be able to know which profile the respondent picked as well as the attributes that were included in each profile shown to each respondent. With this information, one can find the AMCEs of different attributes and do all sorts of analyses. The goal can be accomplished in Qualtrics if images of all possible profiles (all possible attribute level combinations) are included in the Qualtrics library, and JavaScript code is written in the Qualtrics survey to randomly sample from the library and set the chosen profile's attributes as embedded data. To do this, one must first create all possible profiles for the conjoint. To do this, a profile template must first be created, and then the template can be filled in with all possible attribute level combintations. This can be done by creating the template in a Google Slides presentation and then using the Google Slides API to repeatedly duplicate and edit the template slide to create all possible profiles. The provided Python script "Conjoint v3 public version.py" does the majority of these steps (including duplicating and editing slides, creating profiles, and writing JavaScript code), while another script in this repository (e.g. "Image_Resize_and_Blur_Works.py") automates other small (optional) tasks. 
 
 Succinct List of Steps: <br/>
     1. Create the template profile in Google Slides (do this manually)  
@@ -19,7 +19,6 @@ Succinct List of Steps: <br/>
     5. Manually upload all profile pngs to Qualtrics library (This must be done manually, and it takes roughly 5 minutes for every 200-300 pngs)  
     6. Write JavaScript code in Qualtrics that randomly samples images of profiles from the library, displays them to the respondent, and sets embedded data based on the chosen profile's attributes (this is done automatically in Cell 10 of the "Conjoint v3 public version.py" file; you just have to paste the output into the JavaScript editor of each relevant question in the Qualtrics survey)  
     7. Make sure the corresponding embedded data fields exist in Qualtrics and HTML code is included to properly display profiles to the respondent.  
-    7. Once the survey is fielded and data is collected, download the data and analyze it.  
 
 
 Full List of Steps: <br/>
@@ -39,12 +38,11 @@ The full list of steps, in detail, is below. In parentheses, I indicate which sc
     13. Process the profile pngs (For example, I needed to remove white space) ("Conjoint v3 public version.py") <br/>
     14. Manually upload the processed profile pngs to Qualtrics library (Do this by hand) <br/>
     15. Run a scraper to get all of the links to the profile pngs in the Qualtrics Library ("Conjoint v3 public version.py") <br/>
-    16. Format JavaScript code using the created_profiles.csv file and the profile png links ("Conjoint v3 public version.py") <br/>
-    17. Write JavaScript code that randomizes which profiles are shown in Qualtrics (Conjoint v3 public version.py) <br/>
-    18. Modify JavaScript code as desired (e.g. you may want to force a difference on a relevant attribute) (Do this by hand) <br/>
-    19. Ensure that embedded data is set and viewable in Qualtrics output data. Also ensure randomization is working properly. (Do this by hand) <br/>
-    20. Field your survey! <br/>
+    16. Write and format JavaScript code that rnadomized which profiles are shown in Qualtrics ("Conjoint v3 public version.py") <br/>
+    17. Modify JavaScript code as desired (e.g. you may want to force a difference on a relevant attribute) (Do this by hand) <br/>
+    18. Ensure that embedded data is set and viewable in Qualtrics output data. Also ensure randomization is working properly. (Do this by hand) <br/>
+    19. Field your survey! <br/>
 
 
-I'd like to thank the following people for their advice which was helpful in the process of creating this method: Michelle Torres, Salma Mousa, Chris Tausanovitch, and Jeff Lewis. I'd also like to thank Clayton Becker and Connor Warshauer, who provided templates for the JavaScript code included in "Conjoint v3 public version.py"; Felipe Fajardo Vanegas, whose interest in this code inspired me to finally publicly upload the updated version to GitHub; and Danny Goetz, for help with Python troubleshooting. 
+I'd like to thank the following people for their advice which was helpful in the process of creating this method: Salma Mousa, Michelle Torres, Chris Tausanovitch, and Jeff Lewis. I'd also like to thank Clayton Becker and Connor Warshauer, who provided templates for the JavaScript code included in "Conjoint v3 public version.py"; Felipe Fajardo Vanegas, whose interest in this code inspired me to publicly upload the updated version to GitHub; and Danny Goetz, for help with Python troubleshooting. 
 
