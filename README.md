@@ -3,7 +3,7 @@ This repository contains the code needed to generate profiles for a visual conjo
 
 The code automates the majority of steps, though some steps must still be done manually.
 
-For an example of how a visual conjoint profile (created using this code) appears in a survey, see "Conjoint Visual Form.jpg" in this repository. 
+For an example of how visual profiles (created using this code) appear in a survey, please see "Conjoint Visual Form.jpg" in this repository. 
 
 Please note that I am not the first social scientist to create a method for generating visual conjoint profiles. A method developed by Alessandro Vecchiato exists and is available on GitHub at the following link: https://github.com/avecchiato/Introducing_Visual_Conjoints (Citation: Alessandro Vecchiato (2021), "Replication Material of Introducing Visual Conjoint Experiments."). I developed my method independently of Vecchiato, and our methods are different. If you find my method confusing or hard to follow, I recommend checking out Vecchiato's method as an alternative. 
 
