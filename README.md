@@ -1,5 +1,5 @@
 # Visual_Conjoints
-This repository contains the code needed to generate all possible profiles for a visual conjoint experiment and integrate the created profiles with Qualtrics.
+This repository contains the code needed to generate all possible profiles for a visual conjoint experiment and integrate the created profiles with Qualtrics. For an example of how a visual conjoint profile (created using this code) appears in a survey, see "Conjoint Visual Form.jpg" in this repository. 
 
 The code automates the majority of steps, though some steps must still be done manually.
 
